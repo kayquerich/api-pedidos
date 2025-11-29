@@ -28,7 +28,8 @@ export function requestOrderMapping(order) {
 
 export async function updateOrderMapping(order, orderId) {
     
-    /* essa função serve para garantir que o usuario possa escolher quais campos atualizar do pedido, podendo omitir algum campo do body da requisição sem causar nenhum problema */
+    /* essa função serve para garantir que o usuario possa escolher quais campos atualizar do
+    pedido, podendo omitir algum campo do body da requisição sem causar nenhum problema */
     
     try {
         const db = await openDB();
