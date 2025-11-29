@@ -148,9 +148,29 @@ export async function updateOrder(orderId, orderData) {
                 valorItem: item.price
             }))
         };
-        
+
     } catch (error) {
         console.error("Erro ao atualizar o pedido:", error);
+        throw new Error(error.message);
+    }
+}
+
+export async function deleteOrder(orderId) {
+    try {
+        const db = await openDB();
+        await db.run(
+            `DELETE FROM items WHERE orderId = ?`,
+            [orderId]
+        ); // remove os itens relacionados ao pedido
+        const result = await db.run(
+            `DELETE FROM orders WHERE orderId = ?`,
+            [orderId]
+        ); // remove o pedido
+        if (result.changes === 0) {
+            throw new Error('Pedido não encontrado para exclusão');
+        }
+    } catch (error) {
+        console.error("Erro ao excluir o pedido:", error);
         throw new Error(error.message);
     }
 }
