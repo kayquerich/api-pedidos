@@ -23,7 +23,7 @@ export async function createOrder(orderData) {
             valorTotal: order.value,
             dataCriacao: order.creationDate,
             items: order.items?.map(item => ({
-                idItem: item.productId,
+                idItem: `${item.productId}`,
                 quantidadeItem: item.quantity,
                 valorItem: item.price
             })) || []
@@ -31,6 +31,36 @@ export async function createOrder(orderData) {
 
     } catch (error) {
         console.error("Erro ao criar o pedido:", error);
+        throw new Error(error.message);
+    }
+};
+
+export async function getOrder(orderId) {
+    try {
+        const db = await openDB();
+        const order = await db.get(
+            `SELECT * FROM orders WHERE orderId = ?`,
+            [orderId]
+        );
+        if (!order) {
+            throw new Error('Pedido não encontrado');
+        }
+        const items = await db.all(
+            `SELECT * FROM items WHERE orderId = ?`,
+            [orderId]
+        );
+        return {
+            numeroPedido: order.orderId,
+            valorTotal: order.value,
+            dataCriacao: order.creationDate,
+            items: items.map(item => ({
+                idItem: `${item.productId}`,
+                quantidadeItem: item.quantity,
+                valorItem: item.price
+            }))
+        };
+    } catch (error) {
+        console.error("Erro ao obter o pedido:", error);
         throw new Error(error.message);
     }
 };
