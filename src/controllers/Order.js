@@ -38,18 +38,22 @@ export async function createOrder(orderData) {
 export async function getOrder(orderId) {
     try {
         const db = await openDB();
+
         const order = await db.get(
             `SELECT * FROM orders WHERE orderId = ?`,
             [orderId]
-        );
+        ); // busca o pedido pelo ID
+
         if (!order) {
             throw new Error('Pedido não encontrado');
         }
+
         const items = await db.all(
             `SELECT * FROM items WHERE orderId = ?`,
             [orderId]
-        );
-        return {
+        ); // busca os itens relacionados ao pedido
+
+        return { // retorna o pedido encontrado
             numeroPedido: order.orderId,
             valorTotal: order.value,
             dataCriacao: order.creationDate,
@@ -59,8 +63,45 @@ export async function getOrder(orderId) {
                 valorItem: item.price
             }))
         };
+
     } catch (error) {
         console.error("Erro ao obter o pedido:", error);
+        throw new Error(error.message);
+    }
+};
+
+export async function getAllOrders() {
+    try {
+        const db = await openDB();
+        
+        const orders = await db.all(
+            `SELECT * FROM orders`
+        ); // busca todos os pedidos
+        
+        const result = [];
+        
+        for (const order of orders) {
+            const items = await db.all(
+                `SELECT * FROM items WHERE orderId = ?`,
+                [order.orderId]
+            ); // busca os itens relacionados ao pedido
+
+            result.push({ // adiciona o pedido encontrado ao resultado
+                numeroPedido: order.orderId,
+                valorTotal: order.value,
+                dataCriacao: order.creationDate,
+                items: items.map(item => ({
+                    idItem: `${item.productId}`,
+                    quantidadeItem: item.quantity,
+                    valorItem: item.price
+                }))
+            });
+
+        }
+        
+        return result;
+    } catch (error) {
+        console.error("Erro ao obter todos os pedidos:", error);
         throw new Error(error.message);
     }
 };
