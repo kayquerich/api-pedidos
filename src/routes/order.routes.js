@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createOrder, getOrder, getAllOrders } from "../controllers/Order.js";
+import { createOrder, getOrder, getAllOrders, updateOrder } from "../controllers/Order.js";
 
 const orderRouter = Router();
 
@@ -32,6 +32,20 @@ orderRouter.get('/:orderId', async (req, res) => {
             return res.status(404).json({ mensagem : 'Pedido não encontrado' });
         }
         res.status(500).json({ mensagem : 'Erro ao obter o pedido', erro : error.message });
+    }
+});
+
+orderRouter.put('/:orderId', async (req, res) => {
+    try {
+        const orderId = req.params.orderId;
+        const orderData = req.body;
+        const updatedOrder = await updateOrder(orderId, orderData);
+        res.status(200).json({ mensagem : 'Pedido atualizado com sucesso', pedido : updatedOrder });
+    } catch (error) {
+        if (error.message === 'Pedido não encontrado para atualização') {
+            return res.status(404).json({ mensagem : 'Pedido não encontrado para atualização' });
+        }
+        res.status(500).json({ mensagem : 'Erro ao atualizar o pedido', erro : error.message });
     }
 });
 

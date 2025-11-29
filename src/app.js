@@ -1,6 +1,5 @@
 import express from 'express';
 import { createTables } from './database.config.js';
-import { createOrder } from './controllers/Order.js';
 import orderRouter from './routes/order.routes.js';
 
 const app = express();

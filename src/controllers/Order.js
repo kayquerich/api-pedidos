@@ -1,5 +1,5 @@
 import { openDB } from "../database.config.js";
-import { requestOrderMapping } from "../utils.js";
+import { requestOrderMapping, updateOrderMapping } from "../utils.js";
 
 export async function createOrder(orderData) {
     try {
@@ -105,3 +105,52 @@ export async function getAllOrders() {
         throw new Error(error.message);
     }
 };
+
+export async function updateOrder(orderId, orderData) {
+    try {
+        const db = await openDB();
+        const order = await updateOrderMapping(orderData, orderId);
+
+        await db.run(
+            `UPDATE orders SET value = ?, creationDate = ? WHERE orderId = ?`,
+            [order.value, order.creationDate, orderId]
+        ); // atualiza os dados do pedido
+
+        await db.run(
+            `DELETE FROM items WHERE orderId = ?`,
+            [orderId]
+        ); // remove os itens antigos relacionados ao pedido
+
+        for (const item of order.items) {
+            await db.run(
+                `INSERT INTO items (orderId, productId, quantity, price) VALUES (?, ?, ?, ?)`,
+                [orderId, item.productId, item.quantity, item.price]
+            );
+        } // insere os novos itens relacionados ao pedido
+
+        const updatedOrder = await db.get(
+            `SELECT * FROM orders WHERE orderId = ?`,
+            [orderId]
+        ); // busca o pedido atualizado
+
+        const updatedItems = await db.all(
+            `SELECT * FROM items WHERE orderId = ?`,
+            [orderId]
+        ); // busca os itens relacionados ao pedido atualizado
+
+        return { // retorna o pedido atualizado
+            numeroPedido: updatedOrder.orderId,
+            valorTotal: updatedOrder.value,
+            dataCriacao: updatedOrder.creationDate,
+            items: updatedItems.map(item => ({
+                idItem: `${item.productId}`,
+                quantidadeItem: item.quantity,
+                valorItem: item.price
+            }))
+        };
+        
+    } catch (error) {
+        console.error("Erro ao atualizar o pedido:", error);
+        throw new Error(error.message);
+    }
+}
