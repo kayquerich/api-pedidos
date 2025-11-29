@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
     res.status(200).send('Primeiro Teste!');
 });
 
-app.post('/orders', async (req, res) => {
+app.post('/order', async (req, res) => {
     try {
         const orderData = req.body;
         const createdOrder = await createOrder(orderData);
