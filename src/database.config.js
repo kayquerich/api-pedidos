@@ -13,16 +13,15 @@ export async function createTables() {
     openDB().then(async (db) => {
 
         await db.exec(` CREATE TABLE IF NOT EXISTS orders (
-            orderId INTEGER PRIMARY KEY AUTOINCREMENT,
+            orderId TEXT PRIMARY KEY,
             value REAL NOT NULL,
             creationDate TEXT NOT NULL
             )
         `)
 
         await db.exec(`  CREATE TABLE IF NOT EXISTS items (
-            itemId INTEGER PRIMARY KEY AUTOINCREMENT,
-            orderId INTEGER,
-            productId INTEGER,
+            orderId TEXT,
+            productId INTEGER PRIMARY KEY,
             quantity INTEGER,
             price REAL,
             FOREIGN KEY(orderId) REFERENCES orders(orderId)
