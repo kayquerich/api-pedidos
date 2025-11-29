@@ -1,9 +1,15 @@
 import express from 'express';
+import { createTables } from './database.config.js';
+
 const app = express();
 const port = 3000;
 
+createTables();
+
+app.use(express.json());
+
 app.get('/', (req, res) => {    
-    res.send('Primeiro Teste!');
+    res.status(200).send('Primeiro Teste!');
 });
 
 app.listen(port, () => {
