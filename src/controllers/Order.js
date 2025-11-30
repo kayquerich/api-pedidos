@@ -6,16 +6,33 @@ export async function createOrder(orderData) {
         const db = await openDB();
         const order = requestOrderMapping(orderData);
 
+        if (!order.orderId) {
+            throw new Error('orderId é obrigatório');
+        } else {
+            const existingOrder = await db.get(
+                `SELECT * FROM orders WHERE orderId = ?`,
+                [order.orderId]
+            );
+
+            if (existingOrder) {
+                throw new Error('Não foi possível criar o pedido.');
+            }
+        } // valida se o orderId já existe
+
         const createdOrder = await db.run(
             `INSERT INTO orders (orderId, value, creationDate) VALUES (?, ?, ?)`,
             [order.orderId, order.value, order.creationDate]
-        ); // cria o pedido inicialmente
+        ).then(() => { 
+            console.log('Pedido criado com sucesso'); 
+        }).catch(() => { 
+            throw new Error('Erro ao criar o pedido'); // dispara uma exeção interrompendo o fluxo
+        }); // cria o pedido inicialmente
 
         for (const item of order.items) {
             await db.run(
                 `INSERT INTO items (orderId, productId, quantity, price) VALUES (?, ?, ?, ?)`,
                 [order.orderId, item.productId, item.quantity, item.price]
-            );
+            ).then(() => { console.log('Item do pedido criado com sucesso'); }).catch(() => { throw new Error('Erro ao criar o item do pedido'); });
         } // pós a criação do pedido, insere os itens relacionados
 
         return { // retorna o pedido criado
