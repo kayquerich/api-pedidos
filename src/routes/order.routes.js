@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { createOrder, getOrder, getAllOrders, updateOrder, deleteOrder } from "../controllers/Order.js";
+import { IsAuthenticated } from "../controllers/Authentication.js";
 
 const orderRouter = Router();
 
-orderRouter.post('/', async (req, res) => {
+orderRouter.post('/', IsAuthenticated, async (req, res) => {
     try {
         const orderData = req.body;
         const createdOrder = await createOrder(orderData);
@@ -13,7 +14,7 @@ orderRouter.post('/', async (req, res) => {
     }
 });
 
-orderRouter.get('/list', async (req, res) => {
+orderRouter.get('/list', IsAuthenticated, async (req, res) => {
     try {
         const orders = await getAllOrders();
         res.status(200).json(orders);
@@ -22,7 +23,7 @@ orderRouter.get('/list', async (req, res) => {
     }
 });
 
-orderRouter.get('/:orderId', async (req, res) => {
+orderRouter.get('/:orderId', IsAuthenticated, async (req, res) => {
     try {
         const orderId = req.params.orderId;
         const order = await getOrder(orderId);
@@ -35,7 +36,7 @@ orderRouter.get('/:orderId', async (req, res) => {
     }
 });
 
-orderRouter.put('/:orderId', async (req, res) => {
+orderRouter.put('/:orderId', IsAuthenticated, async (req, res) => {
     try {
         const orderId = req.params.orderId;
         const orderData = req.body;
@@ -49,7 +50,7 @@ orderRouter.put('/:orderId', async (req, res) => {
     }
 });
 
-orderRouter.delete('/:orderId', async (req, res) => {
+orderRouter.delete('/:orderId', IsAuthenticated, async (req, res) => {
     try {
         const orderId = req.params.orderId;
         await deleteOrder(orderId);
