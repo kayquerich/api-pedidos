@@ -40,13 +40,6 @@ npm run dev
 
 O servidor iniciará em `http://localhost:3000` com auto-reload ativado.
 
-## ⚠️ Observações de Segurança
-
-- **CORS está configurado para aceitar todas as origens** (`origin: "*"`) apenas para desenvolvimento
-- **Em produção**, configure o CORS adequadamente para aceitar apenas domínios confiáveis
-- Nunca exponha tokens JWT em logs ou versionamento
-- Considere usar variáveis de ambiente para chaves secretas
-
 ## 🛠️ Desenvolvimento
 
 ### Scripts Disponíveis
